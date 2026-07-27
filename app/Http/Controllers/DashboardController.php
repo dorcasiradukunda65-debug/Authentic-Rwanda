@@ -48,6 +48,7 @@ class DashboardController extends Controller
             'bookings' => $bookings,
             'isGuide' => $isGuide,
             'guideExperiences' => $guideExperiences,
+            'guideProfile' => $isGuide ? ($guide ?? null) : null,
         ]);
     }
 

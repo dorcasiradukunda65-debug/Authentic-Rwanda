@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Star, Filter, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import AppLogoIcon from '@/components/app-logo-icon';
 
 interface Experience {
     id: number;
@@ -72,12 +73,14 @@ export default function Explore({ experiences, filters }: Props) {
             <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
                 <div className="container mx-auto flex h-16 items-center justify-between px-4">
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="flex size-8 items-center justify-center rounded-lg bg-[#d93838] text-white font-bold">R</div>
+                        <div className="flex size-8 items-center justify-center rounded-lg bg-[#d93838] text-white p-1.5">
+                            <AppLogoIcon className="size-full" />
+                        </div>
                         <span className="text-xl font-bold tracking-tight">Authentic Rwanda</span>
                     </Link>
                     <div className="flex items-center gap-4">
                         <Link href="/login">
-                            <Button variant="ghost">Log in</Button>
+                            <Button variant="ghost" className="text-zinc-700 hover:text-zinc-900 dark:text-zinc-700 dark:hover:text-zinc-900 hover:bg-zinc-100/50">Log in</Button>
                         </Link>
                         <Link href="/register">
                             <Button className="bg-[#d93838] hover:bg-[#b02e2e]">Join as a Guide</Button>

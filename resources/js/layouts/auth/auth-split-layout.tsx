@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import type { AuthLayoutProps } from '@/types';
 import { home } from '@/routes';
+import AppLogoIcon from '@/components/app-logo-icon';
 
 export default function AuthSplitLayout({
     children,
@@ -21,10 +22,10 @@ export default function AuthSplitLayout({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 
                 <div className="relative z-20 flex items-center text-2xl font-bold tracking-tight">
-                    <div className="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#d93838] text-white">
-                        KE
+                    <div className="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#d93838] text-white p-2">
+                        <AppLogoIcon className="size-full" />
                     </div>
-                    <span>Keza's E Shopping</span>
+                    <span>Authentic Rwanda</span>
                 </div>
 
                 <div className="relative z-20 mt-auto">
@@ -37,23 +38,48 @@ export default function AuthSplitLayout({
                 </div>
             </div>
             
-            {/* Right Side: Form Content */}
-            <div className="w-full py-12 px-6 sm:px-12 lg:p-16 bg-background">
+            {/* Right Side: Form Content (Forced Light Mode styling) */}
+            <div 
+                className="w-full py-12 px-6 sm:px-12 lg:p-16 bg-white text-zinc-900"
+                style={{
+                    colorScheme: 'light',
+                    // Force the standard light mode color vars inside this container
+                    ['--background' as any]: 'oklch(1 0 0)',
+                    ['--foreground' as any]: 'oklch(0.145 0 0)',
+                    ['--card' as any]: 'oklch(1 0 0)',
+                    ['--card-foreground' as any]: 'oklch(0.145 0 0)',
+                    ['--popover' as any]: 'oklch(1 0 0)',
+                    ['--popover-foreground' as any]: 'oklch(0.145 0 0)',
+                    ['--primary' as any]: 'oklch(0.205 0 0)',
+                    ['--primary-foreground' as any]: 'oklch(0.985 0 0)',
+                    ['--secondary' as any]: 'oklch(0.97 0 0)',
+                    ['--secondary-foreground' as any]: 'oklch(0.205 0 0)',
+                    ['--muted' as any]: 'oklch(0.97 0 0)',
+                    ['--muted-foreground' as any]: 'oklch(0.556 0 0)',
+                    ['--accent' as any]: 'oklch(0.97 0 0)',
+                    ['--accent-foreground' as any]: 'oklch(0.205 0 0)',
+                    ['--border' as any]: 'oklch(0.922 0 0)',
+                    ['--input' as any]: 'oklch(0.922 0 0)',
+                    ['--ring' as any]: 'oklch(0.87 0 0)',
+                }}
+            >
                 <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[400px]">
                     <div className="flex flex-col gap-3">
-                        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">{title}</h1>
-                        <p className="text-base text-muted-foreground leading-relaxed">
+                        <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">{title}</h1>
+                        <p className="text-base text-zinc-500 leading-relaxed">
                             {description}
                         </p>
                     </div>
                     
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
+                            <span className="w-full border-t border-zinc-200" />
                         </div>
                     </div>
                     
-                    {children}
+                    <div>
+                        {children}
+                    </div>
                 </div>
             </div>
         </div>

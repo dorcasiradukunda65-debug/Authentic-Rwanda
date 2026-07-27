@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Firebase\FirebaseTokenVerifier;
+use App\Notifications\AdminAlertNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class FirebaseAuthController extends Controller
@@ -53,6 +55,18 @@ class FirebaseAuthController extends Controller
 
         Auth::login($user, true);
         $request->session()->regenerate();
+
+        if ($user->role === 'guide') {
+            $admins = User::where('role', 'admin')->get();
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new AdminAlertNotification(
+                    'Guide Authenticated',
+                    "Guide {$user->name} has just logged in to the platform.",
+                    'info',
+                    '/admin'
+                ));
+            }
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

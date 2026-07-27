@@ -19,7 +19,9 @@ class Guide extends Model
         'is_verified',
         'hourly_rate',
         'total_bookings',
-        'avg_rating'
+        'avg_rating',
+        'license_path',
+        'verification_status',
     ];
 
     protected $casts = [

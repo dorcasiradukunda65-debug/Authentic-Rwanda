@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Experience;
+use App\Models\User;
+use App\Notifications\AdminAlertNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class BookingController extends Controller
@@ -34,6 +37,16 @@ class BookingController extends Controller
             'total_price' => $totalPrice,
             'payment_status' => 'pending',
         ]);
+
+        $admins = User::where('role', 'admin')->get();
+        if ($admins->isNotEmpty()) {
+            Notification::send($admins, new AdminAlertNotification(
+                'New Booking Initiated',
+                "{$user->name} has initiated a booking for {$experience->title}.",
+                'success',
+                '/admin'
+            ));
+        }
 
         // Redirect to a simulated payment page
         return redirect()->route('bookings.payment', ['id' => $booking->id]);

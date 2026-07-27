@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, Search, Star, Calendar, MapPin, CheckCircle2, Clock } from 'lucide-react';
+import { User, Search, Star, Calendar, MapPin, CheckCircle2, Clock, AlertTriangle, ShieldCheck, Upload } from 'lucide-react';
 
 interface Booking {
     id: number;
@@ -19,14 +19,23 @@ interface Booking {
     };
 }
 
+interface GuideProfile {
+    id?: number;
+    verification_status?: 'unverified' | 'pending' | 'verified' | 'rejected';
+    license_path?: string | null;
+}
+
 interface Props {
     bookings: Booking[];
     isGuide: boolean;
+    guideProfile?: GuideProfile | null;
 }
 
-export default function Dashboard({ bookings, isGuide }: Props) {
+export default function Dashboard({ bookings, isGuide, guideProfile }: Props) {
     const { auth } = usePage().props as any;
     const user = auth.user;
+
+    const isVerified = !isGuide || guideProfile?.verification_status === 'verified';
 
     return (
         <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }]}>
@@ -53,26 +62,74 @@ export default function Dashboard({ bookings, isGuide }: Props) {
                     </div>
                 </div>
 
+                {/* Certification Warning Banner for unverified guides */}
+                {isGuide && !isVerified && (
+                    <div className={`rounded-2xl p-5 flex items-start gap-4 border ${
+                        guideProfile?.verification_status === 'pending'
+                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                            : guideProfile?.verification_status === 'rejected'
+                                ? 'bg-red-50 border-[#d93838]/30 text-zinc-800'
+                                : 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                    }`}>
+                        <div className="shrink-0 mt-0.5">
+                            {guideProfile?.verification_status === 'pending' ? (
+                                <ShieldCheck className="size-6 text-zinc-400" />
+                            ) : guideProfile?.verification_status === 'rejected' ? (
+                                <AlertTriangle className="size-6 text-[#d93838]" />
+                            ) : (
+                                <Upload className="size-6 text-zinc-400" />
+                            )}
+                        </div>
+                        <div className="flex-1 space-y-1">
+                            <p className="font-bold text-base">
+                                {guideProfile?.verification_status === 'pending'
+                                    ? 'License under review — access restricted'
+                                    : guideProfile?.verification_status === 'rejected'
+                                        ? 'License rejected — re-upload required'
+                                        : 'Certification required to list experiences'}
+                            </p>
+                            <p className="text-sm text-zinc-500">
+                                {guideProfile?.verification_status === 'pending'
+                                    ? 'An admin is reviewing your guide license. You will be able to create and manage experiences once approved.'
+                                    : guideProfile?.verification_status === 'rejected'
+                                        ? 'Your document did not meet our requirements. Please upload a valid official guide license to re-apply.'
+                                        : 'Upload your Rwanda Development Board (RDB) guide license or equivalent. An admin will review and certify you.'}
+                            </p>
+                        </div>
+                        <Link href="/profile/guide" className="shrink-0">
+                            <Button size="sm" variant="outline" className="font-bold whitespace-nowrap border-zinc-300 text-zinc-700 hover:bg-zinc-100">
+                                {guideProfile?.verification_status === 'rejected' ? 'Re-upload License' : 'Upload License'}
+                            </Button>
+                        </Link>
+                    </div>
+                )}
+
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {/* Action Cards */}
                     {isGuide ? (
                         <>
-                            <Card className="border-t-4 border-[#d93838] shadow-md hover:shadow-lg transition-shadow">
+                            <Card className={`border-t-4 shadow-md transition-shadow ${isVerified ? 'border-[#d93838] hover:shadow-lg' : 'border-zinc-300 opacity-60'}`}>
                                 <CardHeader className="pb-3">
                                     <CardTitle className="flex items-center gap-2">
-                                        <MapPin className="size-5 text-[#d93838]" />
+                                        <MapPin className={`size-5 ${isVerified ? 'text-[#d93838]' : 'text-zinc-400'}`} />
                                         List a New Tour
                                     </CardTitle>
                                     <CardDescription>
-                                        Ready to lead a new adventure? Create a new experience listing here.
+                                        {isVerified ? 'Ready to lead a new adventure? Create a new experience listing here.' : 'Available after your guide license is certified by an admin.'}
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <Link href="/experiences/create">
-                                        <Button variant="outline" className="w-full border-[#d93838] text-[#d93838] hover:bg-red-50">
-                                            + Create Experience
+                                    {isVerified ? (
+                                        <Link href="/experiences/create">
+                                            <Button variant="outline" className="w-full border-[#d93838] text-[#d93838] hover:bg-red-50">
+                                                + Create Experience
+                                            </Button>
+                                        </Link>
+                                    ) : (
+                                        <Button variant="outline" className="w-full border-zinc-200 text-zinc-400" disabled>
+                                            Certification Required
                                         </Button>
-                                    </Link>
+                                    )}
                                 </CardContent>
                             </Card>
 

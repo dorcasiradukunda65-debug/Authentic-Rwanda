@@ -1,5 +1,5 @@
-import { Link } from '@inertiajs/react';
-import { HelpCircle, LayoutGrid, MapPin, Search, PlusCircle } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { HelpCircle, LayoutGrid, MapPin, Search, PlusCircle, ShieldCheck } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -43,6 +43,19 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<any>().props;
+    const userRole = auth?.user?.role;
+
+    const dynamicNavItems = [...mainNavItems];
+
+    if (userRole === 'admin') {
+        dynamicNavItems.unshift({
+            title: 'Admin Dashboard',
+            href: '/admin',
+            icon: ShieldCheck,
+        });
+    }
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -58,7 +71,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={dynamicNavItems} />
             </SidebarContent>
 
             <SidebarFooter>

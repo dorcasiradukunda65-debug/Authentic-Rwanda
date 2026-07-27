@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Experience;
 use App\Models\Guide;
+use App\Models\User;
+use App\Notifications\AdminAlertNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class ExperienceController extends Controller
@@ -113,6 +116,16 @@ class ExperienceController extends Controller
             'category' => $validated['category'] ?? 'General',
             'is_active' => true,
         ]);
+
+        $admins = User::where('role', 'admin')->get();
+        if ($admins->isNotEmpty()) {
+            Notification::send($admins, new AdminAlertNotification(
+                'New Experience Created',
+                "Guide {$user->name} created a new experience: {$validated['title']}.",
+                'success',
+                '/admin'
+            ));
+        }
 
         return redirect()->route('experiences.index')->with('status', 'Experience created successfully!');
     }

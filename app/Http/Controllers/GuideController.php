@@ -43,6 +43,8 @@ class GuideController extends Controller
             'bio' => 'nullable|string|max:1000',
             'specialties' => 'nullable|string|max:500',
             'languages' => 'nullable|string|max:500',
+            'license' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $specialties = $this->parseCsvList($validated['specialties'] ?? null);
@@ -50,15 +52,41 @@ class GuideController extends Controller
 
         $existingGuide = Guide::where('user_id', $user->id)->first();
 
+        $licensePath = null;
+        if ($request->hasFile('license')) {
+            $file = $request->file('license');
+            $fileName = 'license_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('licenses', $fileName, 'public');
+            $licensePath = '/storage/' . $path;
+        }
+
+        $photoUrl = $existingGuide?->photo_url ?? null;
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+            $fileName = 'photo_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('photos', $fileName, 'public');
+            $photoUrl = '/storage/' . $path;
+        }
+
+        $updateData = [
+            'bio' => $validated['bio'] ?? null,
+            'specialties' => $specialties,
+            'languages' => $languages,
+            'photo_url' => $photoUrl,
+            'is_verified' => $existingGuide?->is_verified ?? false,
+            'national_id' => $existingGuide?->national_id ?? 'PENDING_'.$user->id,
+        ];
+
+        if ($licensePath) {
+            $updateData['license_path'] = $licensePath;
+            $updateData['verification_status'] = 'pending';
+            // Reset is_verified when they upload a new license, so they must be re-verified
+            $updateData['is_verified'] = false;
+        }
+
         $guide = Guide::updateOrCreate(
             ['user_id' => $user->id],
-            [
-                'bio' => $validated['bio'] ?? null,
-                'specialties' => $specialties,
-                'languages' => $languages,
-                'is_verified' => $existingGuide?->is_verified ?? false,
-                'national_id' => $existingGuide?->national_id ?? 'PENDING_'.$user->id,
-            ]
+            $updateData
         );
 
         return redirect()->back()->with('status', 'Profile updated successfully!');
